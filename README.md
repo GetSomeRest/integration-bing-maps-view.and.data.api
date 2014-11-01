@@ -1,6 +1,4 @@
-integration-bing-maps-view.and.data.api
-=======================================
-#integration with Microsoft Bing Maps and Autodesk View and Data API
+#Integration with Microsoft Bing Maps and Autodesk View and Data API
 
 ##Description
 
@@ -10,6 +8,7 @@ This is a sample demoing the integration with Microsoft Bing Maps and Autodesk V
 
 * Search locations with keywords and show the result onto Bing Maps.
 * Specify a location where is associted with 3D model.
+* Get access token via ASP.NET
 * Upload a file and get translation.
 * Get thumbnail and reflect it to maps.
 * Load it in custom viewer. 
@@ -20,13 +19,17 @@ This is a sample demoing the integration with Microsoft Bing Maps and Autodesk V
 This sample uses the following libraries.
 
 * jQuery UI - v1.11.1
-* Autodesk View and Data API JavaScript Wrapper Library()
+* Microsoft Bing Maps AJAX Control 7.0
+* Autodesk View and Data API JavaScript Wrapper Library(https://github.com/Developer-Autodesk/library-javascript-view.and.data.api) 
 
 ##Setup/Usage Instructions
 
 * Get your consumer key and secret key from http://developer.autodesk.com
 * Set the API keys in the SecretConstants.cs file
 * Change the bucket name for uploading files
+
+* Get your own credentials at https://www.bingmapsportal.com/
+* Set credentials at <script> area in View-and-Data-Sample.html
 
 ## License
 
