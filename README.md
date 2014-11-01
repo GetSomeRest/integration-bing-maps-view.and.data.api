@@ -26,7 +26,7 @@ This sample uses the following libraries.
 
 * Get your consumer key and secret key from http://developer.autodesk.com
 * Set the API keys in the SecretConstants.cs file
-* Change the bucket name for uploading files
+* Change the bucket prefix name for uploading files
 
 * Get your own credentials at https://www.bingmapsportal.com/
 * Set credentials at <script> area in View-and-Data-Sample.html
