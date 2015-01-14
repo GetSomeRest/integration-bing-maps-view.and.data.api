@@ -24,11 +24,12 @@ This sample uses the following libraries.
 
 ##Setup/Usage Instructions
 
-* Get your consumer key and secret key from http://developer.autodesk.com
-* Set the API keys in the SecretConstants.cs file
-* Change the bucket prefix name 'script area in View-and-Data-Sample.html
-* Get your own credential key at https://www.bingmapsportal.com/
-* Set credentials at 'script' area in View-and-Data-Sample.html
+* Get your consumer key and secret key for view and data api from http://developer.autodesk.com
+* Set your consumer key and secret key for view and data api on the SecretConstants.cs file
+* Get your own credential key for microsoft bing maps at https://www.bingmapsportal.com/
+* Set your own credential key at https://www.bingmapsportal.com/
+* Set credential key for microsoft bing maps in BingMaps-Credentials.js
+* Set the bucket prefix name in BingMaps-Credentials.js
 
 ## License
 

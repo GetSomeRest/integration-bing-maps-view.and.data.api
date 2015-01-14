@@ -3,8 +3,8 @@
 <head>
     <title>ADN Sample</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="View-and-Data/jquery-ui.css">
     <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" type="text/css">
+    <link rel="stylesheet" href="View-and-Data/jquery-ui.css">
     <style>
         .jquery-ui-accordion
         {
@@ -50,6 +50,7 @@
             background-color: #5d5d5d
         }
     </style>
+    <script type="text/javascript" src="BingMaps-Credentials.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://rawgit.com/Developer-Autodesk/library-javascript-view.and.data.api/master/js/Autodesk.ADN.Toolkit.ViewData.js"></script>
@@ -64,12 +65,7 @@
         var _urn;
         var _bucket;
 
-        // ******** Change this as needed ********
-        var _bucket_prefix = "adn-japan";
-
-        // You need to get your own credential key at https://www.bingmapsportal.com/
-        var _bing_maps_credential = "******** Please set Microsoft Bing Maps credentials ********";
-
+        // Launch viewer from paramters
         function initializeViewer() {
             var urn = Autodesk.Viewing.Private.getParameterByName("urn");
             var accessToken = Autodesk.Viewing.Private.getParameterByName("accessToken");
@@ -91,11 +87,13 @@
             _viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {});
             Autodesk.Viewing.Initializer(options, function () {
                 _viewer.initialize();
-                loadDocument(_viewer, Autodesk.Viewing.Private.getAuthObject(), options.document);
+                _viewer.impl.setLightPreset(0);
+                loadDocument(_viewer, options.document);
                 _viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelected);
             });
         }
 
+        // Launch viewer from Bing Maps
         function initializeViewerFromMap(urn, accessToken) {
 
             $("#jquery-ui-accordion").accordion("option", "active", 2);
@@ -113,25 +111,34 @@
             options.document = "urn:" + urn;
 
             var viewerElement = document.getElementById('viewer3d');
-            //_viewer = new Autodesk.Viewing.Viewer3D(viewerElement, {});  // No Navigation control & Environment Light(need _viewer.impl.setLightPreset(1);)
-            _viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {}); // With default UI
+            _viewer = new Autodesk.Viewing.Viewer3D(viewerElement, {});  // No Navigation control & Environment Light(need _viewer.impl.setLightPreset(1);)
+            //_viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {}); // With default UI
+
             Autodesk.Viewing.Initializer(options, function () {
                 _viewer.initialize();
-                loadDocument(_viewer, Autodesk.Viewing.Private.getAuthObject(), options.document);
+                _viewer.impl.setLightPreset(0);
+                loadDocument(_viewer, options.document);
                 _viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelected);
             });
+
         }
 
-        function loadDocument(viewer, auth, documentId, initialItemId) {
+        // Load viewable
+        function loadDocument(viewer, documentId) {
             // Find the first 3d geometry and load that.
-            Autodesk.Viewing.Document.load(documentId, auth, function (doc) {// onLoadCallback
+            Autodesk.Viewing.Document.load(documentId, function (doc) {// onLoadCallback
                 var geometryItems = [];
-                geometryItems = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), { 'type': 'geometry', 'role': '3d' }, true);
+                if (geometryItems.length == 0) {
+                    geometryItems = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+                        'type': 'geometry',
+                        'role': '3d'
+                    }, true);
+                }
                 if (geometryItems.length > 0) {
                     viewer.load(doc.getViewablePath(geometryItems[0]));
                 }
             }, function (errorMsg) {// onErrorCallback
-                console.log("Load Error : " + errorMsg);
+                console.log("Load Error: " + errorMsg);
             });
         }
 
@@ -631,7 +638,7 @@
         // Get Bing Maps
         function getMap() {
 
-            // You need to get your own credentials at https://www.bingmapsportal.com/
+            // Get your own credentials at https://www.bingmapsportal.com/
             var options = {
                 credentials: _bing_maps_credential,
                 mapTypeId: Microsoft.Maps.MapTypeId.road,

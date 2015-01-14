@@ -199,6 +199,7 @@
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="BingMaps-Credentials.js" />
     <Content Include="packages.config" />
     <Content Include="GetAccessToken.ashx" />
     <None Include="Properties\PublishProfiles\adn-japan %282%29.pubxml" />
