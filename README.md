@@ -27,7 +27,6 @@ This sample uses the following libraries.
 * Get your consumer key and secret key for view and data api from http://developer.autodesk.com
 * Set your consumer key and secret key for view and data api on the SecretConstants.cs file
 * Get your own credential key for microsoft bing maps at https://www.bingmapsportal.com/
-* Set your own credential key at https://www.bingmapsportal.com/
 * Set credential key for microsoft bing maps in BingMaps-Credentials.js
 * Set the bucket prefix name in BingMaps-Credentials.js
 
