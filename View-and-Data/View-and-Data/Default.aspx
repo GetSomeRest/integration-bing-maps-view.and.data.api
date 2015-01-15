@@ -247,10 +247,10 @@
             var itemList = document.getElementById("message");
             for (var index = 0; index < result.properties.length; index++) {
                 var prop = result.properties[index];
-                if (prop.displayName == "Layer") {
+                //if (prop.displayName == "Layer") {
                     var data = prop.displayValue + ":" + result.name;
                     itemList.add(new Option(data, data));
-                }
+                //}
             }
         }
         function onGetPropsError(result) {
