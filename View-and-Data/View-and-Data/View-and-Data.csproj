@@ -231,7 +231,6 @@
     <Content Include="Scripts\WebForms\WebForms.js" />
     <Content Include="Scripts\WebForms\WebParts.js" />
     <Content Include="Scripts\WebForms\WebUIValidation.js" />
-    <Content Include="View-and-Data-Sample.html" />
     <Content Include="View-and-Data\Autodesk.ADN.Toolkit.ViewData.js" />
     <Content Include="View-and-Data\external\jquery\jquery.js" />
     <Content Include="View-and-Data\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />

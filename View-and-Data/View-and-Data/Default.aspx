@@ -1,48 +1,79 @@
 ﻿<%@ Page Title="Home Page" Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="View_and_Data._Default" %>
 
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <title>ADN Japan Sample</title>
+    <title>ADN Sample</title>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
-    <link rel="stylesheet" href="View-and-Data/jquery-ui.css">
     <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" type="text/css">
+    <link rel="stylesheet" href="View-and-Data/jquery-ui.css">
+    <style>
+        .jquery-ui-accordion
+        {
+            border-style: none;
+            background: #383838;
+            background: #5d5d5d
+        }
+        .jquery-ui-accordion-title
+        {
+            border-style:outset;
+            height: 15px;
+            color: #ffffff;
+            border-radius: 3px;
+            background: #5d5d5d
+        }
+        .jquery-ui-accordion-contents
+        {
+            border-style: none;
+            background: #383838
+        }
+        .jquery-ui-buttons
+        {
+            height: 30px;
+            color: #ffffff;
+            border-radius: 5px
+        }
+        .text-buttons
+        {
+            width: 100px;
+            height: 30px;
+            border-radius: 5px
+        }
+        .text-boxs
+        {
+            border-radius:3px
+        }
+        .canvas-areas
+        {
+            border-color: #f0f0f0;
+            color: #f0f0f0;
+            background: #5d5d5d;
+            border-radius: 5px;
+            background-color: #5d5d5d
+        }
+    </style>
+    <script type="text/javascript" src="BingMaps-Credentials.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://rawgit.com/Developer-Autodesk/library-javascript-view.and.data.api/master/js/Autodesk.ADN.Toolkit.ViewData.js"></script>
     <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js"></script>
-    <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&mkt=ja-JP"></script>
+    <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&mkt=en-US"></script>
     <script>
-        var viewer;
-        var thisView = [];
-        var files = [];
+        var _viewer = null;
+        var _myView = null;
+        var _files = [];
+        var _map;
+        var _pushPin = null;
+        var _urn;
+        var _bucket;
 
-        // 10/10/2014 Autodesk.ViewingServices.Private.getParameterByName was gone ?
-        // Get argument to html document by name 
-        function getArgumentByName(name) //courtesy Artem
-        {
-            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-            var regexS = "[\\?&]" + name + "=([^&#]*)";
-            var regex = new RegExp(regexS);
-            var results = regex.exec(window.location.href);
-            if (results == null)
-                return "";
-            else
-                return decodeURIComponent(results[1].replace(/\+/g, " "));
-        }
-
+        // Launch viewer from paramters
         function initializeViewer() {
             var urn = Autodesk.Viewing.Private.getParameterByName("urn");
             var accessToken = Autodesk.Viewing.Private.getParameterByName("accessToken");
-            //var urn = getArgumentByName("urn");
-            //var accessToken = getArgumentByName("accessToken");
             if (accessToken == "") {
-                //document.getElementById('jquery-ui-accordion').active = 0;
                 $("#jquery-ui-accordion").accordion("option", "active", 0);
+                getMap();
                 return;
             } else {
                 $("#jquery-ui-accordion").accordion("option", "active", 2);
@@ -54,16 +85,18 @@
             options.document = "urn:" + urn;
 
             var viewerElement = document.getElementById('viewer3d');
-            //viewer = new Autodesk.Viewing.Viewer3D(viewerElement, {});  // コントロール & 環境光なし（need viewer.impl.setLightPreset(1);）
-            viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {});
+            //_viewer = new Autodesk.Viewing.Viewer3D(viewerElement, {});  // No Navigation control & Environment Light(need _viewer.impl.setLightPreset(1);)
+            _viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {});
             Autodesk.Viewing.Initializer(options, function () {
-                viewer.initialize();
-                loadDocument(viewer, Autodesk.Viewing.Private.getAuthObject(), options.document);
-                viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelected);
+                _viewer.initialize();
+                _viewer.impl.setLightPreset(0);
+                loadDocument(_viewer, options.document);
+                _viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelected);
             });
         }
 
-        function initializeViewer2(urn, accessToken) {
+        // Launch viewer from Bing Maps
+        function initializeViewerFromMap(urn, accessToken) {
 
             $("#jquery-ui-accordion").accordion("option", "active", 2);
 
@@ -71,6 +104,8 @@
             for (var index = itemList.length - 1; index >= 0; index--) {
                 itemList[index].remove();
             }
+            var textbox = document.getElementById("search");
+            textbox.textContent = "";
 
             var options = {};
             options.env = "AutodeskProduction";
@@ -78,34 +113,43 @@
             options.document = "urn:" + urn;
 
             var viewerElement = document.getElementById('viewer3d');
-            //viewer = new Autodesk.Viewing.Viewer3D(viewerElement, {});  // コントロール & 環境光なし（need viewer.impl.setLightPreset(1);）
-            viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {});
+            _viewer = new Autodesk.Viewing.Viewer3D(viewerElement, {});  // No Navigation control & Environment Light(need _viewer.impl.setLightPreset(1);)
+            //_viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {}); // With default UI
+
             Autodesk.Viewing.Initializer(options, function () {
-                viewer.initialize();
-                loadDocument(viewer, Autodesk.Viewing.Private.getAuthObject(), options.document);
-                viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelected);
+                _viewer.start();
+                _viewer.impl.setLightPreset(0);
+                loadDocument(_viewer, options.document);
+                _viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelected);
             });
+
         }
 
-        function loadDocument(viewer, auth, documentId, initialItemId) {
+        // Load viewable
+        function loadDocument(viewer, documentId) {
             // Find the first 3d geometry and load that.
-            Autodesk.Viewing.Document.load(documentId, auth, function (doc) {// onLoadCallback
+            Autodesk.Viewing.Document.load(documentId, function (doc) {// onLoadCallback
                 var geometryItems = [];
-                geometryItems = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), { 'type': 'geometry', 'role': '3d' }, true);
+                if (geometryItems.length == 0) {
+                    geometryItems = Autodesk.Viewing.Document.getSubItemsWithProperties(doc.getRootItem(), {
+                        'type': 'geometry',
+                        'role': '3d'
+                    }, true);
+                }
                 if (geometryItems.length > 0) {
                     viewer.load(doc.getViewablePath(geometryItems[0]));
                 }
             }, function (errorMsg) {// onErrorCallback
-                console.log("ロードエラー : " + errorMsg);
+                console.log("Load Error: " + errorMsg);
             });
         }
 
         // Reset
         function action_reset() {
-            viewer.showAll();
-            // viewer.initialize();
-            viewer.setViewFromFile();
-            var num = viewer.getNavigationMode();
+            _viewer.showAll();
+            // _viewer.initialize();
+            _viewer.setViewFromFile();
+            var num = _viewer.getNavigationMode();
             console.log("NavigationMode = " + num);
             var itemList = document.getElementById("message");
             for (var index = itemList.length - 1; index >= 0; index--) {
@@ -115,84 +159,75 @@
 
         // Zoom In
         function action_zoomin() {
-            viewer.canvas.focus();
-            viewer.setNavigationMode(2); // Zoom
+            _viewer.canvas.focus();
+            _viewer.setNavigationMode(2); // Zoom
             var step = document.getElementById('step').value * -1.0;
-            var cam = viewer.getCamera();
+            var cam = _viewer.getCamera();
             cam.translateX(0);
             cam.translateY(0);
             cam.translateZ(step);
-            viewer.impl.syncCamera();
-            viewer.impl.applyCamera(cam);
+            _viewer.impl.syncCamera();
+            _viewer.setNavigationMode(0); // Orbit
         }
 
         // ↓ Zoom Out
         function action_zoomout() {
-            viewer.canvas.focus();
-            viewer.setNavigationMode(2); // Zoom
+            _viewer.canvas.focus();
+            _viewer.setNavigationMode(2); // Zoom
             var step = document.getElementById('step').value;
-            var cam = viewer.getCamera();
+            var cam = _viewer.getCamera();
             cam.translateX(0);
             cam.translateY(0);
             cam.translateZ(step);
-            viewer.impl.syncCamera();
-            viewer.impl.applyCamera(cam);
+            _viewer.impl.syncCamera();
+            _viewer.setNavigationMode(0); // Orbit
         }
 
         // Turn Right
         function action_turnright() {
-            viewer.canvas.focus();
-            viewer.setNavigationMode(0); // Orbit
+            _viewer.canvas.focus();
+            _viewer.setNavigationMode(0); // Orbit
             var step = document.getElementById('step').value * -1.0;
-            var cam = viewer.getCamera();
+            var cam = _viewer.getCamera();
             //var vecz = new THREE.Vector3(1, 0, 0);
             //cam.translateOnAxis(vecz, step);
             cam.translateX(step);
             cam.translateY(0);
             cam.translateZ(0);
-            viewer.impl.syncCamera();
-            viewer.impl.applyCamera(cam);
+            _viewer.impl.syncCamera();
         }
 
         // Turn Left
         function action_turnleft() {
-            viewer.canvas.focus();
-            viewer.setNavigationMode(0); // Orbit
+            _viewer.canvas.focus();
+            _viewer.setNavigationMode(0); // Orbit
             var step = document.getElementById('step').value;
-            var cam = viewer.getCamera();
+            var cam = _viewer.getCamera();
             cam.translateX(step);
             cam.translateY(0);
             cam.translateZ(0);
-            viewer.impl.syncCamera();
-            viewer.impl.applyCamera(cam);
+            _viewer.impl.syncCamera();
         }
 
         // Register View
         function action_register() {
-            var cam = viewer.getCamera();
-            thisView[0] = cam.aspect;
-            thisView[1] = cam.fov;
-            thisView[2] = cam.position.clone();
-            thisView[3] = viewer.impl.controls.getLookAtPoint().clone();
+            _myView = _viewer.getState();
         }
 
         // Restore View
         function action_restore() {
-            viewer.impl.camera.aspect = thisView[0];
-            viewer.impl.camera.fov = thisView[1];
-            viewer.impl.controls.setViewpoint(thisView[2], thisView[3]);
-            //viewer.impl.applyCamera(cam);
+            _viewer.restoreState(_myView);
         }
 
         // Search
         function action_search() {
             var search = document.getElementById("search").value;
-            viewer.search(search, onSearchResult);
+            _viewer.search(search, onSearchResult);
         }
 
         // Search callback
         function onSearchResult(idArray) {
-            viewer.isolateById(idArray);
+            _viewer.isolateById(idArray);
         }
 
         // Selection callback
@@ -201,14 +236,26 @@
             if (dbIdArray.length > 0) {
                 for (i = 0; i < dbIdArray.length; i++) {
                     var dbId = dbIdArray[i];
-                    var node = viewer.model.getNodeById(dbId);
+                    var node = _viewer.model.getNodeById(dbId);
                     if (node != null) {
-                        var text = "[" + dbId + "]";
-                        var itemList = document.getElementById("message");
-                        var obj = itemList.add(new Option(text, text));
+                        _viewer.getProperties(dbId, onGetPropsSuccess, onGetPropsError);
                     }
                 }
             }
+        }
+        function onGetPropsSuccess(result) {
+            var itemList = document.getElementById("message");
+            for (var index = 0; index < result.properties.length; index++) {
+                var prop = result.properties[index];
+                if (prop.displayName == "Layer") {
+                    var data = prop.displayValue + ":" + result.name;
+                    itemList.add(new Option(data, data));
+                }
+            }
+        }
+        function onGetPropsError(result) {
+            var itemList = document.getElementById("message");
+            var obj = itemList.add(new Option("Error", "Error"));
         }
 
         // File dialog
@@ -224,7 +271,7 @@
         $(document).on("click", "[id^='jquery-ui-button-upload']", function () {
             var filedialog = document.getElementById('upload');
             filedialog.addEventListener("change", function (event) {
-                files = event.target.files;
+                _files = event.target.files;
                 fileUpload();
             }, false);
             filedialog.click();
@@ -232,13 +279,13 @@
 
         // Drop
         function onDrop(event) {
-            files = event.dataTransfer.files;
-            if (files.length > 1) {
+            _files = event.dataTransfer.files;
+            if (_files.length > 1) {
                 console.log('File must be one');
             } else {
-                var fileName = files[0].name;
-                var fileSize = files[0].size;
-                var fileType = files[0].type;
+                var fileName = _files[0].name;
+                var fileSize = _files[0].size;
+                var fileType = _files[0].type;
                 console.log('File Name : ' + fileName + '\nFile Size : ' + fileSize + ' bytes\nFile Type : ' + fileType);
             }
             $('#droparea').css('background-color', '#5d5d5d');
@@ -326,9 +373,17 @@
                 },
                 text: false
             });
+
+            jQuery('#jquery-ui-button-map-search').button(
+            {
+                icons: {
+                    primary: 'ui-icon-search',
+                },
+                text: false
+            });
         });
 
-        // File upload
+        // Single file upload
         function fileUpload() {
             $("#progress").progressbar("option", "value", false);
 
@@ -340,14 +395,14 @@
             }
 
             var date = new Date();
-            var bucket = "adn-japan" + "-" + date.getTime();
+            var bucket = _bucket_prefix + "-" + date.getTime();
             if (bucket === '') {
                 console.log('Bucket name cannot be empty');
                 console.log('Exiting ...');
                 return;
             }
 
-            if (files.length === 0) {
+            if (_files.length === 0) {
                 console.log('No file to upload');
                 console.log('Exiting ...');
                 return;
@@ -361,7 +416,7 @@
                 function (bucketResponse) {
                     console.log('Bucket details successful:');
                     console.log(bucketResponse);
-                    uploadFiles(bucket, files, token);
+                    uploadFiles(bucket, _files, token);
                 },
 
                 //onError
@@ -369,9 +424,10 @@
                     console.log("Bucket doesn't exist");
                     console.log("Attempting to create...");
                     createBucket(bucket, token);
-            });
+                });
         }
 
+        // Create bucket
         function createBucket(bucket, accessToken) {
             var bucketCreationData = {
                 bucketKey: bucket,
@@ -386,7 +442,7 @@
                 function (response) {
                     console.log('Bucket creation successful:');
                     console.log(response);
-                    uploadFiles(response.key, files, accessToken);
+                    uploadFiles(response.key, _files, accessToken);
                 },
 
                 //onError
@@ -395,9 +451,10 @@
                     console.log(error);
                     console.log('Exiting ...');
                     return;
-            });
+                });
         }
 
+        // Files upload
         function uploadFiles(bucket, files, accessToken) {
             for (var i = 0; i < files.length; ++i) {
                 var file = files[i];
@@ -427,9 +484,13 @@
                                     console.log(viewable);
                                     var fileId = viewDataClient.fromBase64(viewable.urn);
                                     $("#progress").progressbar("option", "value", 0);
-                                    addThumbnail(fileId, response.file.name);
-                                    initializeViewer2(viewable.urn, accessToken);
-                            });
+                                    if (_viewer) {
+                                        _viewer.uninitialize();
+                                        _viewer = null;
+                                    }
+                                    initializeViewerFromMap(viewable.urn, accessToken);
+                                    addThumbnail(fileId, response.file.name, bucket, viewable.urn);
+                                });
                         }
                     },
 
@@ -438,11 +499,12 @@
                         $("#progress").progressbar("option", "value", 0);
                         console.log('File upload failed:');
                         console.log(error);
-                });
+                    });
             }
             files = [];
         }
 
+        // Transration state check
         function checkTranslationStatus(fileId, timeout, onSuccess) {
             var startTime = new Date().getTime();
             var timer = setInterval(function () {
@@ -460,14 +522,18 @@
                             }
                         },
                         function (error) {
-                    });
+                            $("#progress").progressbar("option", "value", 0);
+                            console.log('Translation error : ');
+                            console.log(error);
+                        });
                 }
             }, 2000);
         };
 
-        function addThumbnail(fileId, name) {
-            $("#jquery-ui-accordion").accordion("option", "active", 0);
-            var parentNode = document.getElementById('thumbnails');
+        // Thumbnail & floating info element set
+        function addThumbnail(fileId, name, bucket, urn) {
+            //$("#jquery-ui-accordion").accordion("option", "active", 0);
+            var parentNode = document.getElementById('thumbnail');
             var childNode = document.getElementById('generated_image');
             if (childNode) {
                 parentNode.removeChild(childNode);
@@ -477,96 +543,215 @@
             img.width = 128;
             img.height = 128;
             parentNode.appendChild(img);
+
             viewDataClient.getThumbnailAsync(
                fileId,
                function (data) {
                    img.src = "data:image/png;base64," + data;
+
+                   _bucket = bucket;
+                   _urn = urn;
+                   _map.entities.clear();
+                   var location = _pushPin.getLocation();
+                   var infobox = new Microsoft.Maps.Infobox(_pushPin.getLocation(), {
+                       title: name,
+                       width: 200,
+                       height: 70
+                   });
+                   infobox.setOptions({
+                       visible: true,
+                       location: _pushPin.location,
+                       actions: [{ label: 'View 3D Model', eventHandler: onViewModel }]
+                   });
+
+                   Microsoft.Maps.Events.addHandler(infobox, 'mouseenter', function () {
+                       var point = _map.tryLocationToPixel(_pushPin.getLocation(), Microsoft.Maps.PixelReference.page);
+                       var location = _map.tryPixelToLocation(point);
+                       var image = document.getElementById("thumbnail");
+
+                       var latitude = document.getElementById("latitude");
+                       latitude.textContent = "Latitude:\n" + getRound10(location.latitude);
+
+                       var longitude = document.getElementById("longitude");
+                       longitude.textContent = "Longitude:\n" + getRound10(location.longitude);
+
+                       var info = document.getElementById("pininfo");
+                       info.style.top = point.y - 50 + "px";
+                       info.style.left = point.x - 100 + "px";
+                       info.style.display = "block";
+                   });
+
+                   Microsoft.Maps.Events.addHandler(infobox, 'mouseleave', function () {
+                       var info = document.getElementById("pininfo");
+                       info.style.display = "none";
+                   });
+
+                   _map.entities.push(infobox);
+
                },
                function (error) {
                    console.log('Error getting thumbnail for ' + fileId + ': ' + error);
-           });
+               });
         };
 
+        // Reload viewer
+        function onViewModel() {
+            $("#jquery-ui-accordion").accordion("option", "active", 2);
+            var token = getToken();
+            initializeViewerFromMap(_urn, token);
+        }
+
+        // Reset prpgress bar
         $(function () {
             $("#progress").progressbar({
                 value: 0
             });
         });
 
+        // Test getting token
         function action_test() {
             var accessToken = getToken();
             alert(accessToken);
         }
 
+        // Get token
         function getToken() {
             var newToken;
-            //$.ajax({
-            //    url: "GetAccessToken.ashx",
-            //    type: 'GET',
-            //    cache: false,
-            //    dataType: 'json',
-            //    success: function (data) {
-            //        newToken = JSON.parse(data).access_token;
-            //    }
-            //});
-
-            //$.ajax({
-            //    url: "GetAccessToken.ashx",
-            //    type: "GET",
-            //    cache: false,
-            //    dataType: "json"
-            //}).then(function (data) {
-            //    if (data.success) {
-            //        newToken = JSON.parse(data).access_token;
-            //    }
-            //});
-
             var xmlHttp = null;
             xmlHttp = new XMLHttpRequest();
-            //xmlHttp.open( "GET", "https://adn-japan.azurewebsites.net/GetAccessToken.ashx", false );
-            xmlHttp.open( "GET", "GetAccessToken.ashx", false );
-            xmlHttp.send( null );
-            var data= xmlHttp.responseText;
+            xmlHttp.open("GET", "GetAccessToken.ashx", false);
+            xmlHttp.send(null);
+            var data = xmlHttp.responseText;
             var newToken = JSON.parse(data).access_token;
             return newToken;
         }
+
+        // Round value
+        function getRound10(value) {
+            var newValue;
+            newValue = value * 1000000000;
+            newValue = Math.round(newValue);
+            newValue = newValue / 1000000000;
+            return newValue;
+        }
+
+        // Get Bing Maps
+        function getMap() {
+
+            // Get your own credentials at https://www.bingmapsportal.com/
+            var options = {
+                credentials: _bing_maps_credential,
+                mapTypeId: Microsoft.Maps.MapTypeId.road,
+                center: new Microsoft.Maps.Location(37.0, -100.0),
+                zoom: 2,
+                enableSearchLogo: false,
+                enableClickableLogo: false
+            }
+
+            _map = new Microsoft.Maps.Map(document.getElementById("maparea"), options);
+
+            var location;
+            Microsoft.Maps.Events.addHandler(_map, "mousedown", function (event) {
+                if (event.isSecondary) {
+                    event.handled = true;
+
+                    _map.entities.clear();
+                    //if (_pushPin) {
+                    //    _map.entities.remove(_pushPin);
+                    //}
+
+                    var point = new Microsoft.Maps.Point(event.getX(), event.getY());
+                    location = _map.tryPixelToLocation(point);
+
+                    _pushPin = new Microsoft.Maps.Pushpin(location, { text: '!' });
+
+                    Microsoft.Maps.Events.addHandler(_pushPin, "click", function (event) {
+                        $("#jquery-ui-accordion").accordion("option", "active", 1);
+                    });
+
+                    _map.entities.push(_pushPin);
+                }
+            });
+
+        }
+
+        // Address Search on Bing Maps
+        function action_map_search() {
+            var addrval = $('#address').val();
+            var requestUri =
+              'http://dev.virtualearth.net/REST/v1/Locations/'
+              + encodeURI(addrval) + '?output=json&key=' + _bing_maps_credential;
+            $.ajax({
+                url: requestUri,
+                dataType: 'jsonp',
+                jsonp: 'jsonp',
+                beforeSend: function (xhr) {
+                    console.log('changing map ...');
+                },
+                success: function (response) {
+                    console.log('got location !');
+                    if (response &&
+                        response.resourceSets &&
+                        response.resourceSets.length > 0 &&
+                        response.resourceSets[0].resources &&
+                        response.resourceSets[0].resources.length > 0) {
+                        var bbox = response.resourceSets[0].resources[0].bbox;
+                        var latitude = response.resourceSets[0].resources[0].point.coordinates[0];
+                        var longitude = response.resourceSets[0].resources[0].point.coordinates[1];
+                        _map.setView({
+                            center: new Microsoft.Maps.Location(latitude, longitude),
+                            zoom: 15
+                        });
+                    }
+                },
+                error: function () {
+                    console.log('map search error:' + response.errorDetails[0]);
+                }
+            });
+        }
+
     </script>
 </head>
 <body onload="initializeViewer()" style="background:#383838">
-    <div id="jquery-ui-accordion" style="border-style:none; background:#383838">
-        <div class="jquery-ui-accordion-title" style="border-style:outset; height:15px; color:#ffffff; border-radius:3px; background:#5d5d5d">Step 1</div>
-        <div class="jquery-ui-accordion-contents" style="border-style:none; background:#383838">
-            <div id="maparea" style="position:relative; border-color:#f0f0f0; top:0%; left:0%; width:100%; height:200px; color:#f0f0f0; background:#5d5d5d; border-radius:5px;">
-                <button id="test" style="position:absolute; top:10%; left:50%; width:30px; height:30px; color:#ffffff; border-radius: 5px; display:none" onclick="action_test()"></button>
-                <label style="position:relative; top:50%; left:45%; color:#f0f0f0">Place holder</label>
-                <div id="thumbnails"></div>
+    <div id="jquery-ui-accordion">
+        <div class="jquery-ui-accordion-title">Step 1</div>
+        <div class="jquery-ui-accordion-contents">
+            <div style="position:relative; top:0px; left:0%; height:580px; width:100%">
+                <div class="canvas-areas" id="maparea" style="position:absolute; border-style:outset; top:0%; left:0%; height:100%; width:100%"></div>
+                <input class="text-boxs" id="address" style="position:absolute; top:10px; left:50%; width:34%; height:25px" type="text" />
+                <button class="jquery-ui-buttons" id="jquery-ui-button-map-search" style="position:absolute; top:10px; left:85%; width:30px" onclick="action_map_search()"></button>
+                <div class="canvas-areas" id='pininfo' style="position:absolute; border-style:outset; height:250px; width:137px; display:none">
+                    <div id='thumbnail' style="position:absolute; top:10px; left:5px; width: 130px; height:45px"></div>
+                    <div id='latitude' style="position:absolute; top:150px; left:10px; width: 100px; height:5px; color:#ffffff"></div>
+                    <div id='longitude' style="position:absolute; top:200px; left:10px; width: 130px; height:5px; color:#ffffff"></div>
+                </div>
             </div>
         </div>
-        <div class="jquery-ui-accordion-title" style="border-style:outset; height:15px; color:#ffffff; border-radius:3px; background:#5d5d5d">Step 2</div>
-        <div class="jquery-ui-accordion-contents" style="border-style:none; background:#383838">
-            <div id="droparea" style="position:relative; border-style:dashed; border-color:#f0f0f0; top:0%; left:0%; width:100%; height:200px; color:#f0f0f0; background:#5d5d5d; border-radius:5px;" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+        <div class="jquery-ui-accordion-title">Step 2</div>
+        <div class="jquery-ui-accordion-contents">
+            <div class="canvas-areas" id="droparea" style="position:relative; border-style:dashed; top:0%; left:0%; width:100%; height:200px" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
                 <label style="position:relative; top:50%; left:42%; color:#f0f0f0">Drop a file here, or</label>
-                <button id="jquery-ui-button-upload" name="jquery-ui-button-upload" style="position:relative; top:50%; left:42%; width:25px; height:25px; color:#ffffff; border-radius: 5px;"></button>
+                <button class="jquery-ui-buttons" id="jquery-ui-button-upload" style="position:relative; top:50%; left:42%; width:30px"></button>
                 <input id="upload" type="file" style="display:none" onclick="action_file_dialog()" />
                 <div id="progress" style="position:relative; top:80%; left:5%; width:90%; height:5px; border-style:none; background:#5d5d5d"></div>
             </div>
         </div>
-        <div class="jquery-ui-accordion-title" style="border-style:outset; height:15px; color:#ffffff; border-radius:3px; background:#5d5d5d">Step 3</div>
-        <div class="jquery-ui-accordion-contents" style="border-style:none; background:#383838">
+        <div class="jquery-ui-accordion-title">Step 3</div>
+        <div class="jquery-ui-accordion-contents">
             <div style="position:relative; top:0px; left:0%; height:700px; width:100%">
-                <div id="viewer3d" style="border-style:outset; position:absolute; top:0px; left:0%; height:85%; width:88%; border-radius:3px; background-color:#5d5d5d"></div>
-                <div id="controls" style="border-style:outset; position:absolute; top:0px; left:90%; height:85%; width:150px; border-radius:3px; background-color:#5d5d5d">
-                    <button style="position:absolute; top:10px; left:25px; width:100px; height:30px; border-radius: 5px;" onclick="action_reset()">Reset</button>
-                    <input id="step" style="position:absolute; top:83px; left:48px; width:50px; height:25px; border-radius:3px" size="5" maxlength="5" value="100" type="text" />
-                    <button id="jquery-ui-button-zoomin" style="position:absolute; top:50px; left:65px; width:25px; height:25px; color:#ffffff; border-radius: 5px;" onclick="action_zoomin()"></button>
-                    <button id="jquery-ui-button-zoomout" style="position:absolute; top:120px; left:65px; width:25px; height:25px; color:#ffffff; border-radius: 5px;" onclick="action_zoomout()"></button>
-                    <button id="jquery-ui-button-turnright" style="position:absolute; top:85px; left:120px; width:25px; height:25px; color:#ffffff; border-radius: 5px;" onclick="action_turnright()"></button>
-                    <button id="jquery-ui-button-turnleft" style="position:absolute; top:85px; left:4px; width:25px; height:25px; color:#ffffff; border-radius: 5px;" onclick="action_turnleft()"></button>
-                    <button style="position:absolute; top:155px; left:25px; width:100px; height:30px; border-radius: 5px;" onclick="action_register()">Register</button>
-                    <button style="position:absolute; top:190px; left:25px; width:100px; height:30px; border-radius: 5px;" onclick="action_restore()">Restore</button>
-                    <select id="message" style="position:absolute; top:280px; left:10px; height:30%; width:130px; overflow:auto; border-style:outset" multiple="multiple"></select>
-                    <input id="search" style="position:absolute; top:230px; left:10px; width:80px; height:25px; border-radius: 3px;" type="text" />
-                    <button id="jquery-ui-button-search" style="position:absolute; top:230px; left:110px; width:30px; height:30px; color:#ffffff; border-radius: 5px;" onclick="action_search()"></button>
+                <div class="canvas-areas" id="viewer3d" style="border-style:outset; position:absolute; top:0px; left:0%; height:85%; width:88%"></div>
+                <div class="canvas-areas" id="controls" style="border-style:outset; position:absolute; top:0px; left:90%; height:85%; width:150px">
+                    <button class="text-buttons" style="position:absolute; top:10px; left:25px" onclick="action_reset()">Reset</button>
+                    <input class="text-boxs" id="step" style="position:absolute; top:83px; left:46px; width:50px; height:25px" size="5" maxlength="5" value="100" type="text" />
+                    <button class="jquery-ui-buttons" id="jquery-ui-button-zoomin" style="position:absolute; top:50px; left:60px; width:30px" onclick="action_zoomin()"></button>
+                    <button class="jquery-ui-buttons" id="jquery-ui-button-zoomout" style="position:absolute; top:120px; left:60px; width:30px" onclick="action_zoomout()"></button>
+                    <button class="jquery-ui-buttons" id="jquery-ui-button-turnright" style="position:absolute; top:85px; left:110px; width:30px" onclick="action_turnright()"></button>
+                    <button class="jquery-ui-buttons" id="jquery-ui-button-turnleft" style="position:absolute; top:85px; left:9px; width:30px" onclick="action_turnleft()"></button>
+                    <button class="text-buttons" style="position:absolute; top:155px; left:25px" onclick="action_register()">Register</button>
+                    <button class="text-buttons" style="position:absolute; top:190px; left:25px" onclick="action_restore()">Restore</button>
+                    <select id="message" style="position:absolute; top:280px; left:10px; height:300px; width:130px; overflow:auto; border-style:outset; font-size:9pt" multiple="multiple"></select>
+                    <input class="text-boxs" id="search" style="position:absolute; top:230px; left:12px; width:80px; height:25px" type="text" />
+                    <button class="jquery-ui-buttons" id="jquery-ui-button-search" style="position:absolute; top:230px; left:105px; width:30px" onclick="action_search()"></button>
                 </div>
             </div>
         </div>

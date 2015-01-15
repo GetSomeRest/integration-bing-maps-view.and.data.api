@@ -13,7 +13,7 @@ namespace View_and_Data
     {
         void Application_Start(object sender, EventArgs e)
         {
-            // アプリケーションのスタートアップで実行するコードです
+           
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterOpenAuth();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
@@ -21,13 +21,13 @@ namespace View_and_Data
 
         void Application_End(object sender, EventArgs e)
         {
-            //  アプリケーションのシャットダウンで実行するコードです
+  
 
         }
 
         void Application_Error(object sender, EventArgs e)
         {
-            // ハンドルされていないエラーが発生したときに実行するコードです
+           
 
         }
     }
