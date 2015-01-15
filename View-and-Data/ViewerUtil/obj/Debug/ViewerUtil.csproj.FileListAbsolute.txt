@@ -29,3 +29,12 @@ C:\Users\Toshiaki Isezaki\Desktop\View-and-Data\ViewerUtil\bin\Debug\RestSharp.x
 C:\Users\Toshiaki Isezaki\Desktop\View-and-Data\ViewerUtil\obj\Debug\ViewerUtil.csprojResolveAssemblyReference.cache
 C:\Users\Toshiaki Isezaki\Desktop\View-and-Data\ViewerUtil\obj\Debug\ViewerApigeeUtil.dll
 C:\Users\Toshiaki Isezaki\Desktop\View-and-Data\ViewerUtil\obj\Debug\ViewerApigeeUtil.pdb
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\bin\Debug\ViewerApigeeUtil.dll
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\bin\Debug\ViewerApigeeUtil.pdb
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\bin\Debug\ICSharpCode.SharpZipLib.dll
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\bin\Debug\log4net.dll
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\bin\Debug\log4net.xml
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\bin\Debug\RestSharp.xml
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\obj\Debug\ViewerUtil.csprojResolveAssemblyReference.cache
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\obj\Debug\ViewerApigeeUtil.dll
+Y:\github\local\duchangyu\integration-bing-maps-view.and.data.api\View-and-Data\ViewerUtil\obj\Debug\ViewerApigeeUtil.pdb

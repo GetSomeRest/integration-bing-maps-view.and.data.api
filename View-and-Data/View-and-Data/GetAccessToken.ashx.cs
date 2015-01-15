@@ -19,10 +19,10 @@ namespace View_and_Data
         {
             string respJson = string.Empty;
 
-            Util util = new Util(SecretConstants.BASE_URL);
+            Util util = new Util(Credentials.BASE_URL);
 
-            AccessToken token = util.GetAccessToken(SecretConstants.CLIENT_ID,
-                                                    SecretConstants.CLIENT_SECRET);
+            AccessToken token = util.GetAccessToken(Credentials.CLIENT_ID,
+                                                    Credentials.CLIENT_SECRET);
 
             if (context.Session["token"] == null)
             {

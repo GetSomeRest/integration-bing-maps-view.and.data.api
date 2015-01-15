@@ -7,7 +7,7 @@
 This is a sample demoing the integration with Microsoft Bing Maps and Autodesk View and Data API. Main functions are as follows.
 
 * Search locations with keywords and show the result onto Bing Maps.
-* Specify a location where is associted with 3D model.
+* Specify a location where is associated with 3D model.
 * Get access token via ASP.NET
 * Upload a file and get translation.
 * Get thumbnail and reflect it to maps.
@@ -24,10 +24,10 @@ This sample uses the following libraries.
 
 ##Setup/Usage Instructions
 
-* Get your consumer key and secret key for view and data api from http://developer.autodesk.com
-* Set your consumer key and secret key for view and data api on the SecretConstants.cs file
-* Get your own credential key for microsoft bing maps at https://www.bingmapsportal.com/
-* Set credential key for microsoft bing maps in BingMaps-Credentials.js
+* Get your consumer key and secret key for view and data API from http://developer.autodesk.com
+* Set your consumer key and secret key for view and data API on the Credentials.cs file
+* Get your own credential key for Microsoft bing maps at https://www.bingmapsportal.com/
+* Set credential key for Microsoft bing maps in BingMaps-Credentials.js
 * Set the bucket prefix name in BingMaps-Credentials.js
 
 ## License
