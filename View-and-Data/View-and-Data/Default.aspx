@@ -1,7 +1,6 @@
 ﻿<%@ Page Title="Home Page" Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="View_and_Data._Default" %>
 
-<!doctype html>
-<html>
+<html lang="en">
 <head>
     <title>ADN Sample</title>
     <meta charset="utf-8">
@@ -52,7 +51,7 @@
             background-color: #5d5d5d
         }
     </style>
-    <script type="text/javascript" src="BingMaps-Credentials.js"></script>
+    <script type="text/javascript" src="Credentials.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://rawgit.com/Developer-Autodesk/library-javascript-view.and.data.api/master/js/Autodesk.ADN.Toolkit.ViewData.js"></script>
@@ -117,7 +116,7 @@
             //_viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {}); // With default UI
 
             Autodesk.Viewing.Initializer(options, function () {
-                _viewer.start();
+                _viewer.initialize();
                 _viewer.impl.setLightPreset(0);
                 loadDocument(_viewer, options.document);
                 _viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelected);
@@ -247,10 +246,10 @@
             var itemList = document.getElementById("message");
             for (var index = 0; index < result.properties.length; index++) {
                 var prop = result.properties[index];
-                //if (prop.displayName == "Layer") {
+                if (prop.displayName == "Layer") {
                     var data = prop.displayValue + ":" + result.name;
                     itemList.add(new Option(data, data));
-                //}
+                }
             }
         }
         function onGetPropsError(result) {

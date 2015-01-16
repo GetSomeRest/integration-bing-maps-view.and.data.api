@@ -17,4 +17,28 @@ namespace ViewerUtil.Models
 
 
 
+
+    public class BucketCreationData
+    {
+        public string bucketKey { get; set; }
+        public List<ServicesAllowed> servicesAllowed { get; set; }
+        public string policy { get; set; }
+    }
+
+    public class ServicesAllowed
+    {
+        public string serviceId { get; set; }
+        public string access { get; set; }
+    }
+
+
+    public class BucketDetails
+    {
+        public string key { get; set; }
+        public string owner { get; set; }
+        public DateTime createdDate { get; set; }
+        public List<ServicesAllowed> permissions { get; set; }
+        public string policy { get; set; }
+    }
+
 }
