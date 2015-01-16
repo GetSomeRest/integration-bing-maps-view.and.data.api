@@ -147,3 +147,14 @@ C:\Users\Toshiaki Isezaki\Desktop\View-and-Data - コピー\View-and-Data\bin\Vi
 C:\Users\Toshiaki Isezaki\Desktop\View-and-Data - コピー\View-and-Data\obj\Debug\View-and-Data.csprojResolveAssemblyReference.cache
 C:\Users\Toshiaki Isezaki\Desktop\View-and-Data - コピー\View-and-Data\obj\Debug\View-and-Data.dll
 C:\Users\Toshiaki Isezaki\Desktop\View-and-Data - コピー\View-and-Data\obj\Debug\View-and-Data.pdb
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\bin\View-and-Data.dll
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\bin\View-and-Data.pdb
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\bin\Microsoft.Web.Infrastructure.dll
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\bin\ViewerApigeeUtil.dll
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\bin\log4net.dll
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\bin\ICSharpCode.SharpZipLib.dll
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\bin\Microsoft.Web.Infrastructure.xml
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\bin\ViewerApigeeUtil.pdb
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\obj\Debug\View-and-Data.csprojResolveAssemblyReference.cache
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\obj\Debug\View-and-Data.dll
+C:\Users\isezakt\Documents\GitHub\integration-bing-maps-view.and.data.api\View-and-Data\View-and-Data\obj\Debug\View-and-Data.pdb

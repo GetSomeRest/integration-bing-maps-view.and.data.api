@@ -11,9 +11,9 @@ namespace View_and_Data
     public partial class _Default : System.Web.UI.Page
     {
         //replace with your own comsumer key and secret
-        const String consumerKey = SecretConstants.CLIENT_ID; //"nqpwqsDLFGkSO6LgA2mvaSXy5AeH5VSJ"
-        const String secretKey = SecretConstants.CLIENT_SECRET; //"YCh4SpF0REGg4awz"
-        const String strAgigee = SecretConstants.BASE_URL; //"https://developer.api.autodesk.com"
+        const String consumerKey = Credentials.CLIENT_ID; //"nqpwqsDLFGkSO6LgA2mvaSXy5AeH5VSJ"
+        const String secretKey = Credentials.CLIENT_SECRET; //"YCh4SpF0REGg4awz"
+        const String strAgigee = Credentials.BASE_URL; //"https://developer.api.autodesk.com"
 #if false
         //replace with your own URN of model
         //you need to get your model uploaded and translated with view and data api

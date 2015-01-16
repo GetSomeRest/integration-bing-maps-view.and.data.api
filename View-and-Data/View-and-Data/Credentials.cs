@@ -5,7 +5,7 @@ using System.Web;
 
 namespace View_and_Data
 {
-    public class SecretConstants
+    public class Credentials
     {
         public const string BASE_URL = "https://developer.api.autodesk.com";
         public const string DEFAULT_BUCKET_KEY = "********** Please set your bucket name **********";

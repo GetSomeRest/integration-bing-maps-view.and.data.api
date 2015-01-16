@@ -27,8 +27,8 @@ This sample uses the following libraries.
 * Get your consumer key and secret key for view and data API from http://developer.autodesk.com
 * Set your consumer key and secret key for view and data API on the Credentials.cs file, replace the bucket name with your own. Bucket keys are unique within the data center or region in which they were created, best practice is the incorporate your company name or the consumer key into the bucket name. It must be between 3 to 128 characters long and contain only lowercase letters, numbers and the symbols . _ -
 * Get your own credential key for Microsoft bing maps at https://www.bingmapsportal.com/
-* Set credential key for Microsoft bing maps in BingMaps-Credentials.js
-* Set the bucket prefix name in BingMaps-Credentials.js
+* Set credential key for Microsoft bing maps in Credentials.js
+* Set the bucket prefix name in Credentials.js
 
 ## License
 

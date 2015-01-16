@@ -192,7 +192,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SecretConstants.cs" />
+    <Compile Include="Credentials.cs" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
