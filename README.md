@@ -2,8 +2,6 @@
 
 ##Description
 
-*This sample is part of the [Developer-Autodesk/Autodesk-View-and-Data-API-Samples](https://github.com/Developer-Autodesk/autodesk-view-and-data-api-samples) repository.*
-
 This is a sample demoing the integration with Microsoft Bing Maps and Autodesk View and Data API. Main functions are as follows.
 
 * Search locations with keywords and show the result onto Bing Maps.
