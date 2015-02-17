@@ -65,6 +65,7 @@
         var _pushPin = null;
         var _urn;
         var _bucket;
+        var _viewDataClient;
 
         // Launch viewer from paramters
         function initializeViewer() {
@@ -146,7 +147,6 @@
         // Reset
         function action_reset() {
             _viewer.showAll();
-            // _viewer.initialize();
             _viewer.setViewFromFile();
             var num = _viewer.getNavigationMode();
             console.log("NavigationMode = " + num);
@@ -188,8 +188,6 @@
             _viewer.setNavigationMode(0); // Orbit
             var step = document.getElementById('step').value * -1.0;
             var cam = _viewer.getCamera();
-            //var vecz = new THREE.Vector3(1, 0, 0);
-            //cam.translateOnAxis(vecz, step);
             cam.translateX(step);
             cam.translateY(0);
             cam.translateZ(0);
@@ -407,8 +405,8 @@
                 return;
             }
 
-            viewDataClient = new Autodesk.ADN.Toolkit.ViewData.AdnViewDataClient('https://developer.api.autodesk.com', token);
-            viewDataClient.getBucketDetailsAsync(
+            _viewDataClient = new Autodesk.ADN.Toolkit.ViewData.AdnViewDataClient('https://developer.api.autodesk.com', 'GetAccessToken.ashx');
+            _viewDataClient.getBucketDetailsAsync(
                 bucket,
 
                 //onSuccess
@@ -434,7 +432,7 @@
                 policy: 'transient'
             }
 
-            viewDataClient.createBucketAsync(
+            _viewDataClient.createBucketAsync(
                 bucketCreationData,
 
                 //onSuccess
@@ -458,7 +456,7 @@
             for (var i = 0; i < files.length; ++i) {
                 var file = files[i];
                 console.log('Uploading file: ' + file.name + ' ...');
-                viewDataClient.uploadFileAsync(
+                _viewDataClient.uploadFileAsync(
                     file,
                     bucket,
                     file.name,
@@ -468,7 +466,7 @@
                         console.log('File upload successful:');
                         console.log(response);
                         var fileId = response.objects[0].id;
-                        var registerResponse = viewDataClient.register(fileId);
+                        var registerResponse = _viewDataClient.register(fileId);
                         if (registerResponse.Result === "Success") {
                             console.log("Registration result: " + registerResponse.Result);
                             console.log('Starting translation: ' + fileId);
@@ -481,7 +479,7 @@
                                     console.log("Translation successful: " + response.file.name);
                                     console.log("Viewable: ");
                                     console.log(viewable);
-                                    var fileId = viewDataClient.fromBase64(viewable.urn);
+                                    var fileId = _viewDataClient.fromBase64(viewable.urn);
                                     $("#progress").progressbar("option", "value", 0);
                                     if (_viewer) {
                                         _viewer.uninitialize();
@@ -511,7 +509,7 @@
                 if (dt >= 1.0) {
                     clearInterval(timer);
                 } else {
-                    viewDataClient.getViewableAsync(
+                    _viewDataClient.getViewableAsync(
                         fileId,
                         function (response) {
                             console.log('Translation Progess ' + fileId + ': ' + response.progress);
@@ -543,7 +541,7 @@
             img.height = 128;
             parentNode.appendChild(img);
 
-            viewDataClient.getThumbnailAsync(
+            _viewDataClient.getThumbnailAsync(
                fileId,
                function (data) {
                    img.src = "data:image/png;base64," + data;
@@ -655,9 +653,6 @@
                     event.handled = true;
 
                     _map.entities.clear();
-                    //if (_pushPin) {
-                    //    _map.entities.remove(_pushPin);
-                    //}
 
                     var point = new Microsoft.Maps.Point(event.getX(), event.getY());
                     location = _map.tryPixelToLocation(point);
