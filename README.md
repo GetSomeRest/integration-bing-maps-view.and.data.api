@@ -27,6 +27,9 @@ This sample uses the following libraries.
 * Get your own credential key for Microsoft bing maps at https://www.bingmapsportal.com/
 * Set credential key for Microsoft bing maps in Credentials.js
 * Set the bucket prefix name in Credentials.js
+* Build and run this application in WebGL enabled browser - Google Chrome or Firefox.
+* Search locations with keywords or find a location by pan/zoom
+* Right click on map to add a pin, click this pin to go to step2, upload a model by drag and drop files into the box. The model shows up in viewer of Step 3. Play with the model viewer in Step3, and go back to Step1, a thumbnail is attached to the pin.
 
 ## License
 

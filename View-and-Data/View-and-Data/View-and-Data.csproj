@@ -141,7 +141,6 @@
     <Content Include="GetAccessToken.ashx" />
     <None Include="Properties\PublishProfiles\adn-japan %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\adn-japan.pubxml" />
-    <Content Include="View-and-Data-Sample.html" />
     <Content Include="View-and-Data\Autodesk.ADN.Toolkit.ViewData.js" />
     <Content Include="View-and-Data\external\jquery\jquery.js" />
     <Content Include="View-and-Data\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
