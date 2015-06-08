@@ -148,44 +148,45 @@
         function action_reset() {
             _viewer.showAll();
             _viewer.setViewFromFile();
-            var num = _viewer.getNavigationMode();
-            console.log("NavigationMode = " + num);
             var itemList = document.getElementById("message");
             for (var index = itemList.length - 1; index >= 0; index--) {
                 itemList[index].remove();
             }
+            var search = document.getElementById("search");
+            search.value = "";
         }
 
         // Zoom In
         function action_zoomin() {
             _viewer.canvas.focus();
-            _viewer.setNavigationMode(2); // Zoom
+            console.log(_viewer.getActiveNavigationTool());
+            _viewer.setActiveNavigationTool("dolly");
             var step = document.getElementById('step').value * -1.0;
             var cam = _viewer.getCamera();
             cam.translateX(0);
             cam.translateY(0);
             cam.translateZ(step);
             _viewer.impl.syncCamera();
-            _viewer.setNavigationMode(0); // Orbit
+            _viewer.setActiveNavigationTool("orbit");
         }
 
         // ↓ Zoom Out
         function action_zoomout() {
             _viewer.canvas.focus();
-            _viewer.setNavigationMode(2); // Zoom
+            _viewer.setActiveNavigationTool("dolly");
             var step = document.getElementById('step').value;
             var cam = _viewer.getCamera();
             cam.translateX(0);
             cam.translateY(0);
             cam.translateZ(step);
             _viewer.impl.syncCamera();
-            _viewer.setNavigationMode(0); // Orbit
+            _viewer.setActiveNavigationTool("orbit");
         }
 
         // Turn Right
         function action_turnright() {
             _viewer.canvas.focus();
-            _viewer.setNavigationMode(0); // Orbit
+            _viewer.setActiveNavigationTool("orbit");
             var step = document.getElementById('step').value * -1.0;
             var cam = _viewer.getCamera();
             cam.translateX(step);
@@ -197,7 +198,7 @@
         // Turn Left
         function action_turnleft() {
             _viewer.canvas.focus();
-            _viewer.setNavigationMode(0); // Orbit
+            _viewer.setActiveNavigationTool("orbit");
             var step = document.getElementById('step').value;
             var cam = _viewer.getCamera();
             cam.translateX(step);
@@ -406,22 +407,27 @@
             }
 
             _viewDataClient = new Autodesk.ADN.Toolkit.ViewData.AdnViewDataClient('https://developer.api.autodesk.com', 'GetAccessToken.ashx');
-            _viewDataClient.getBucketDetailsAsync(
-                bucket,
+            _viewDataClient.onInitialized(function () {
 
-                //onSuccess
-                function (bucketResponse) {
-                    console.log('Bucket details successful:');
-                    console.log(bucketResponse);
-                    uploadFiles(bucket, _files, token);
-                },
+                //… start using the client …
+                _viewDataClient.getBucketDetailsAsync(
+                    bucket,
 
-                //onError
-                function (error) {
-                    console.log("Bucket doesn't exist");
-                    console.log("Attempting to create...");
-                    createBucket(bucket, token);
-                });
+                    //onSuccess
+                    function (bucketResponse) {
+                        console.log('Bucket details successful:');
+                        console.log(bucketResponse);
+                        uploadFiles(bucket, _files, token);
+                    },
+
+                    //onError
+                    function (error) {
+                        console.log("Bucket doesn't exist");
+                        console.log("Attempting to create...");
+                        createBucket(bucket, token);
+                    });
+
+            });
         }
 
         // Create bucket
