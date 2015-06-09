@@ -4,7 +4,7 @@
 <head>
     <title>ADN Sample</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" type="text/css">
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css?v=v1.2.15" type="text/css">
     <link rel="stylesheet" href="View-and-Data/jquery-ui.css">
     <style>
         .jquery-ui-accordion
@@ -55,7 +55,7 @@
     <script type="text/javascript" src="View-and-Data/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://rawgit.com/Developer-Autodesk/library-javascript-view.and.data.api/master/js/Autodesk.ADN.Toolkit.ViewData.js"></script>
-    <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js"></script>
+    <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js?v=v1.2.15"></script>
     <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&mkt=en-US"></script>
     <script>
         var _viewer = null;
@@ -233,22 +233,25 @@
             var dbIdArray = event.dbIdArray;
             if (dbIdArray.length > 0) {
                 for (i = 0; i < dbIdArray.length; i++) {
-                    var dbId = dbIdArray[i];
-                    var node = _viewer.model.getNodeById(dbId);
+                    var node = dbIdArray[i];
                     if (node != null) {
-                        _viewer.getProperties(dbId, onGetPropsSuccess, onGetPropsError);
+                        _viewer.getProperties(node, onGetPropsSuccess, onGetPropsError);
                     }
                 }
             }
         }
         function onGetPropsSuccess(result) {
+            // Clear listbox
             var itemList = document.getElementById("message");
+            for (var index = itemList.length - 1; index >= 0; index--) {
+                itemList[index].remove();
+            }
+
+            // Display properties
             for (var index = 0; index < result.properties.length; index++) {
                 var prop = result.properties[index];
-                if (prop.displayName == "Layer") {
-                    var data = prop.displayValue + ":" + result.name;
-                    itemList.add(new Option(data, data));
-                }
+                var data = prop.displayName + ":" + prop.displayValue;
+                itemList.add(new Option(data, data));
             }
         }
         function onGetPropsError(result) {
