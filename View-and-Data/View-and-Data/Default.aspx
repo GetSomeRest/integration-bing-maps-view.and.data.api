@@ -4,7 +4,7 @@
 <head>
     <title>ADN Sample</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" type="text/css" />
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css?v=v1.2.15" type="text/css">
     <link rel="stylesheet" href="View-and-Data/jquery-ui.css">
     <style>
         .jquery-ui-accordion
@@ -55,7 +55,7 @@
     <script type="text/javascript" src="View-and-Data/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://rawgit.com/Developer-Autodesk/library-javascript-view.and.data.api/master/js/Autodesk.ADN.Toolkit.ViewData.js"></script>
-    <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js"></script>
+    <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js?v=v1.2.15"></script>
     <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&mkt=en-US"></script>
     <script>
         var _viewer = null;
@@ -113,12 +113,12 @@
             options.document = "urn:" + urn;
 
             var viewerElement = document.getElementById('viewer3d');
-            _viewer = new Autodesk.Viewing.Viewer3D(viewerElement, {});  // No Navigation control & Environment Light(need _viewer.impl.setLightPreset(1);)
-            //_viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {}); // With default UI
+            //_viewer = new Autodesk.Viewing.Viewer3D(viewerElement, {});  // No Navigation control & Environment Light(need _viewer.impl.setLightPreset(1);)
+            _viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerElement, {}); // With default UI
 
             Autodesk.Viewing.Initializer(options, function () {
                 _viewer.initialize();
-                _viewer.impl.setLightPreset(0);
+                //_viewer.impl.setLightPreset(0);
                 loadDocument(_viewer, options.document);
                 _viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelected);
             });
