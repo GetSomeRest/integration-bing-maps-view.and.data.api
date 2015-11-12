@@ -4,7 +4,7 @@
 <head>
     <title>ADN Sample</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css?v=v1.2.15" type="text/css">
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css?v=v1.2.17" type="text/css">
     <link rel="stylesheet" href="View-and-Data/jquery-ui.css">
     <style>
         .jquery-ui-accordion
@@ -55,8 +55,8 @@
     <script type="text/javascript" src="View-and-Data/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://rawgit.com/Developer-Autodesk/library-javascript-view.and.data.api/master/js/Autodesk.ADN.Toolkit.ViewData.js"></script>
-    <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js?v=v1.2.15"></script>
-    <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&mkt=en-US"></script>
+    <script type="text/javascript" src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js?v=v1.2.17"></script>
+        <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&mkt=en-US"></script>
     <script>
         var _viewer = null;
         var _myView = null;
@@ -396,7 +396,7 @@
             }
 
             var date = new Date();
-            var bucket = _bucket_prefix + "-" + date.getTime();
+            var bucket = _bucket_prefix + "-" + _bing_maps_credential.toLowerCase();
             if (bucket === '') {
                 console.log('Bucket name cannot be empty');
                 console.log('Exiting ...');
@@ -437,7 +437,7 @@
         function createBucket(bucket, accessToken) {
             var bucketCreationData = {
                 bucketKey: bucket,
-                servicesAllowed: {},
+                //servicesAllowed: {},
                 policy: 'transient'
             }
 
