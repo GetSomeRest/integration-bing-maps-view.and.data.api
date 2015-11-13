@@ -54,9 +54,9 @@
     <script type="text/javascript" src="Credentials.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="View-and-Data/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="https://rawgit.com/Developer-Autodesk/library-javascript-view.and.data.api/master/js/Autodesk.ADN.Toolkit.ViewData.js"></script>
     <script type="text/javascript" src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js?v=v1.2.17"></script>
-        <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&mkt=en-US"></script>
+    <script type="text/javascript" src="https://raw.githubusercontent.com/Developer-Autodesk/library-javascript-view-and-data-toolkit/master/dist/js/view-and-data-client-v1.js"></script>
+    <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&mkt=en-US"></script>
     <script>
         var _viewer = null;
         var _myView = null;
@@ -396,6 +396,7 @@
             }
 
             var date = new Date();
+            //var bucket = _bucket_prefix + "-" + date.getTime();
             var bucket = _bucket_prefix + "-" + _bing_maps_credential.toLowerCase();
             if (bucket === '') {
                 console.log('Bucket name cannot be empty');
@@ -409,11 +410,11 @@
                 return;
             }
 
-            _viewDataClient = new Autodesk.ADN.Toolkit.ViewData.AdnViewDataClient('https://developer.api.autodesk.com', 'GetAccessToken.ashx');
+            _viewDataClient = new Autodesk.ADN.Toolkit.ViewAndData.Client('https://developer.api.autodesk.com', 'GetAccessToken.ashx');
             _viewDataClient.onInitialized(function () {
 
                 //… start using the client …
-                _viewDataClient.getBucketDetailsAsync(
+                _viewDataClient.getBucketDetails(
                     bucket,
 
                     //onSuccess
@@ -437,18 +438,18 @@
         function createBucket(bucket, accessToken) {
             var bucketCreationData = {
                 bucketKey: bucket,
-                //servicesAllowed: {},
+                policyKey: 'transient',
                 policy: 'transient'
             }
 
-            _viewDataClient.createBucketAsync(
+            _viewDataClient.createBucket(
                 bucketCreationData,
 
                 //onSuccess
                 function (response) {
                     console.log('Bucket creation successful:');
                     console.log(response);
-                    uploadFiles(response.key, _files, accessToken);
+                    uploadFiles(bucket, _files, accessToken);
                 },
 
                 //onError
@@ -465,7 +466,7 @@
             for (var i = 0; i < files.length; ++i) {
                 var file = files[i];
                 console.log('Uploading file: ' + file.name + ' ...');
-                _viewDataClient.uploadFileAsync(
+                _viewDataClient.uploadFile(
                     file,
                     bucket,
                     file.name,
@@ -474,30 +475,39 @@
                     function (response) {
                         console.log('File upload successful:');
                         console.log(response);
-                        var fileId = response.objects[0].id;
-                        var registerResponse = _viewDataClient.register(fileId);
-                        if (registerResponse.Result === "Success") {
-                            console.log("Registration result: " + registerResponse.Result);
-                            console.log('Starting translation: ' + fileId);
-                            checkTranslationStatus(
-                                fileId,
-                                1000 * 60 * 5, //5 mins timeout
+                        var fileId = response.objectId;
+                        _viewDataClient.register(fileId,
+                            function (registerResponse) {
 
-                                //onSuccess
-                                function (viewable) {
-                                    console.log("Translation successful: " + response.file.name);
-                                    console.log("Viewable: ");
-                                    console.log(viewable);
-                                    var fileId = _viewDataClient.fromBase64(viewable.urn);
-                                    $("#progress").progressbar("option", "value", 0);
-                                    if (_viewer) {
-                                        _viewer.uninitialize();
-                                        _viewer = null;
-                                    }
-                                    initializeViewerFromMap(viewable.urn, accessToken);
-                                    addThumbnail(fileId, response.file.name, bucket, viewable.urn);
-                                });
-                        }
+                                console.log(registerResponse);
+
+                                if (registerResponse.Result === "Success" || registerResponse.Result === "Created") {
+
+                                    console.log("Registration result: " + registerResponse.Result);
+                                    console.log('Starting translation: ' + fileId);
+
+                                    checkTranslationStatus(
+                                            fileId,
+                                            1000 * 60 * 5, //5 mins timeout
+
+                                            //onSuccess
+                                            function (viewable) {
+                                                console.log("Translation successful: " + response.file.name);
+                                                console.log("Viewable: ");
+                                                console.log(viewable);
+                                                var fileId = _viewDataClient.fromBase64(viewable.urn);
+                                                $("#progress").progressbar("option", "value", 0);
+                                                if (_viewer) {
+                                                    _viewer.uninitialize();
+                                                    _viewer = null;
+                                                }
+                                                initializeViewerFromMap(viewable.urn, accessToken);
+                                                addThumbnail(fileId, response.file.name, bucket, viewable.urn);
+                                            });
+
+                                }
+
+                            });
                     },
 
                     //onError
@@ -518,7 +528,7 @@
                 if (dt >= 1.0) {
                     clearInterval(timer);
                 } else {
-                    _viewDataClient.getViewableAsync(
+                    _viewDataClient.getViewable(
                         fileId,
                         function (response) {
                             console.log('Translation Progess ' + fileId + ': ' + response.progress);
@@ -538,7 +548,6 @@
 
         // Thumbnail & floating info element set
         function addThumbnail(fileId, name, bucket, urn) {
-            //$("#jquery-ui-accordion").accordion("option", "active", 0);
             var parentNode = document.getElementById('thumbnail');
             var childNode = document.getElementById('generated_image');
             if (childNode) {
@@ -550,7 +559,7 @@
             img.height = 128;
             parentNode.appendChild(img);
 
-            _viewDataClient.getThumbnailAsync(
+            _viewDataClient.getThumbnail(
                fileId,
                function (data) {
                    img.src = "data:image/png;base64," + data;
@@ -593,7 +602,6 @@
                    });
 
                    _map.entities.push(infobox);
-
                },
                function (error) {
                    console.log('Error getting thumbnail for ' + fileId + ': ' + error);
